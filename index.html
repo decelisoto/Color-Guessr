@@ -1,11 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+ <meta charset="UTF-8">
+ <title>ColorGuessr - Game</title>
+ <link rel="stylesheet" href="style.css">
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Jersey+15&display=swap" rel="stylesheet">
+
+
 </head>
-<body>
-    
+<body class="game-page">
+ <div class="level-display">Level: <span id="levelNumber">1</span></div>
+ <div class="container" id="blocksContainer"></div>
+ <div class="message" id="message"></div>
+ <script>
+   const blocksContainer = document.getElementById('blocksContainer');
+   const levelNumberEl = document.getElementById('levelNumber');
+   const messageEl = document.getElementById('message');
+   let level = 1;
+   function getRandomHSL() {
+     const h = Math.floor(Math.random() * 360);
+     const s = Math.floor(Math.random() * 50) + 50;
+     const l = Math.floor(Math.random() * 40) + 30;
+     return { h, s, l };
+   }
+   function hslToString({ h, s, l }) {
+     return `hsl(${h}, ${s}%, ${l}%)`;
+   }
+   function getSlightlyDifferentColor(baseHSL, level) {
+     const difference = Math.max(1, 15 - level);
+     let newLightness = baseHSL.l + (Math.random() < 0.5 ? difference : -difference);
+     newLightness = Math.max(0, Math.min(100, newLightness));
+     return { h: baseHSL.h, s: baseHSL.s, l: newLightness };
+   }
+   function generateBlocks() {
+     messageEl.textContent = '';
+     blocksContainer.innerHTML = '';
+     levelNumberEl.textContent = level;
+     const baseColor = getRandomHSL();
+     const oddColor = getSlightlyDifferentColor(baseColor, level);
+     const oddIndex = Math.floor(Math.random() * 4);
+     for (let i = 0; i < 4; i++) {
+       const block = document.createElement('div');
+       block.classList.add('block');
+       if (i === oddIndex) {
+         block.style.backgroundColor = hslToString(oddColor);
+         block.setAttribute('data-correct', 'true');
+       } else {
+         block.style.backgroundColor = hslToString(baseColor);
+       }
+       block.addEventListener('click', onBlockClick);
+       blocksContainer.appendChild(block);
+     }
+   }
+   function onBlockClick(event) {
+     const isCorrect = event.target.getAttribute('data-correct') === 'true';
+     if (isCorrect) {
+       level++;
+       generateBlocks();
+     } else {
+       updateHighScore(level - 1);
+       window.location.href = 'menu.html';
+     }
+   }
+   function updateHighScore(currentScore) {
+     const storedHighScore = parseInt(localStorage.getItem('highScore') || '0', 10);
+     if (currentScore > storedHighScore) {
+       localStorage.setItem('highScore', currentScore);
+     }
+   }
+   generateBlocks();
+ </script>
 </body>
 </html>

@@ -1,0 +1,70 @@
+.jersey-15-regular {
+    font-family: "Jersey 15", serif;
+    font-weight: 400;
+    font-style: normal;
+  } 
+ * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Jersey 15', serif;
+  }
+   body.menu-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+    background-color: #f0f0f0;
+  }
+   .menu-page .high-score {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+   .menu-page h1 {
+    font-size: 6rem;
+    margin-bottom: 20px;
+  }
+   .menu-page .start-button {
+    background-color: pink;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+   .menu-page .start-button:hover {
+    opacity: 0.8;
+  }
+   /* Game Page Styles */
+  body.game-page {
+    text-align: center;
+    margin-top: 50px;
+  }
+   .game-page .level-display {
+    font-size: 3.0em;
+    margin-bottom: 20px;
+  }
+   .game-page .container {
+    display: flex;
+    flex-wrap: wrap;
+    width: 220px;
+    margin: 0 auto;
+    justify-content: center;
+  }
+   .game-page .block {
+    width: 100px;
+    height: 100px;
+    margin: 5px;
+    border: 2px solid #444;
+    cursor: pointer;
+  }
+   .game-page .message {
+    margin-top: 20px;
+    color: #d9534f;
+  }
+  
+ 
