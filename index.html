@@ -40,7 +40,6 @@
       text-shadow: 4px 4px 4px #9c9c9c;
     }
 
-    /* High Score container at top-right */
     .high-score-box {
   position: absolute;
   top: 5%;
@@ -118,8 +117,8 @@
     }
     .modal h3 {
       margin-bottom: 1rem;
-      color: #E7C964;
-      -webkit-text-stroke: #A17900;
+      -webkit-text-stroke-color: #000;
+      -webkit-text-fill-color: #ffc400;
       font-size: 2rem;
     }
     
@@ -198,7 +197,6 @@
     }
     resetHighScoreBtn.addEventListener('click', resetHighScore);
 
-    // Random color helpers
     function getRandomHSL() {
       const h = Math.floor(Math.random() * 360);
       const s = Math.floor(Math.random() * 50) + 50; 
