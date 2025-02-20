@@ -1,76 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8">
- <title>ColorGuessr - Game</title>
- <link rel="stylesheet" href="style.css">
- <link rel="preconnect" href="https://fonts.googleapis.com">
- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
- <link href="https://fonts.googleapis.com/css2?family=Jersey+15&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>ColorGuessr</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jersey+15&family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Pixelify Sans", serif;
+      font-optical-sizing: auto;
+      font-weight: 300;
+      font-style: normal;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100%;
+      background-color: #f0f0f0;
+      text-align: center;
+      position: relative; 
+    }
+    
+    p {
+      margin-top: 2%;
+      margin-bottom: 2%;
+      font-size: 1.5vw;
+    }
 
+    header {
+      margin-top: 5%;
+      font-size: 5vw;
+      font-weight: bold;
+      text-shadow: 4px 4px 4px #9c9c9c;
+    }
 
+    /* High Score container at top-right */
+    .high-score-box {
+  position: absolute;
+  top: 5%;
+  right: 2%;
+  display: flex;           
+  flex-direction: column;  
+  align-items: center;    
+  text-align: center;    
+  gap: 0.5rem;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: clamp(0.5rem, 2vw, 2rem);
+}
+
+.reset-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 10px;
+  background-color: #B6CDB9;
+  color: #000;
+  font-size: clamp(0.5rem, 1.5vw, 1rem);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.reset-button:hover {
+  opacity: 0.7;
+}
+
+    .blocks-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      width: 80%;
+      max-width: 600px;
+      margin: 2rem auto;
+    }
+    .block {
+      border: 2px solid #000000;
+      border-radius: 10px;
+      aspect-ratio: 1 / 1; 
+      background-color: #ddd;
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out; 
+    }
+
+    footer {
+      margin-top: auto;  
+      padding: 1rem;
+    }
+    .score-box {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-size: 2.5rem;
+    }
+
+    .overlay {
+      position: fixed;
+      background-color: #00000039;
+      top: 0; left: 0;
+      width: 100%; 
+      height: 100%;
+      display: none; 
+      justify-content: center;
+      align-items: center;
+      z-index: 999; 
+    }
+    .modal {
+      background-color: #ffffffda;
+      padding: 2rem;
+      border: 2px solid #444;
+      border-radius: 30px;
+      text-align: center;
+    }
+    .modal h3 {
+      margin-bottom: 1rem;
+      color: #E7C964;
+      -webkit-text-stroke: #A17900;
+      font-size: 2rem;
+    }
+    
+    .modal h2 {
+      margin-bottom: 1rem;
+    }
+    .try-again-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 50px;
+      background-color: #B6CDB9;
+      color: #000000;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .try-again-btn:hover {
+      opacity: 0.9;
+    }
+    .block:hover {
+      transform: scale(1.05); 
+    }
+
+    @keyframes pulsingOffset {
+      0%, 100% { outline-offset: 3px; }
+      50% { outline-offset: 5px; }
+    }
+    .correct-block-highlight {
+      outline: 8px solid rgb(31, 197, 31);   
+      outline-offset: 10px;       
+      animation: pulsingOffset 1s infinite ease-in-out; 
+    }
+  </style>
 </head>
-<body class="game-page">
- <div class="level-display">Level: <span id="levelNumber">1</span></div>
- <div class="container" id="blocksContainer"></div>
- <div class="message" id="message"></div>
- <script>
-   const blocksContainer = document.getElementById('blocksContainer');
-   const levelNumberEl = document.getElementById('levelNumber');
-   const messageEl = document.getElementById('message');
-   let level = 1;
-   function getRandomHSL() {
-     const h = Math.floor(Math.random() * 360);
-     const s = Math.floor(Math.random() * 50) + 50;
-     const l = Math.floor(Math.random() * 40) + 30;
-     return { h, s, l };
-   }
-   function hslToString({ h, s, l }) {
-     return `hsl(${h}, ${s}%, ${l}%)`;
-   }
-   function getSlightlyDifferentColor(baseHSL, level) {
-     const difference = Math.max(1, 15 - level);
-     let newLightness = baseHSL.l + (Math.random() < 0.5 ? difference : -difference);
-     newLightness = Math.max(0, Math.min(100, newLightness));
-     return { h: baseHSL.h, s: baseHSL.s, l: newLightness };
-   }
-   function generateBlocks() {
-     messageEl.textContent = '';
-     blocksContainer.innerHTML = '';
-     levelNumberEl.textContent = level;
-     const baseColor = getRandomHSL();
-     const oddColor = getSlightlyDifferentColor(baseColor, level);
-     const oddIndex = Math.floor(Math.random() * 4);
-     for (let i = 0; i < 4; i++) {
-       const block = document.createElement('div');
-       block.classList.add('block');
-       if (i === oddIndex) {
-         block.style.backgroundColor = hslToString(oddColor);
-         block.setAttribute('data-correct', 'true');
-       } else {
-         block.style.backgroundColor = hslToString(baseColor);
-       }
-       block.addEventListener('click', onBlockClick);
-       blocksContainer.appendChild(block);
-     }
-   }
-   function onBlockClick(event) {
-     const isCorrect = event.target.getAttribute('data-correct') === 'true';
-     if (isCorrect) {
-       level++;
-       generateBlocks();
-     } else {
-       updateHighScore(level - 1);
-       window.location.href = 'menu.html';
-     }
-   }
-   function updateHighScore(currentScore) {
-     const storedHighScore = parseInt(localStorage.getItem('highScore') || '0', 10);
-     if (currentScore > storedHighScore) {
-       localStorage.setItem('highScore', currentScore);
-     }
-   }
-   generateBlocks();
- </script>
+<body>
+  <div class="high-score-box">
+    <div>High Score: <span id="highScoreDisplay">0</span></div>
+    <button id="resetHighScoreBtn" class="reset-button">Reset High Score</button>
+  </div>
+
+  <header>Color Guessr</header>
+  <p>Pick the box that appears different from the others.</p>
+  <div class="blocks-container" id="blocksContainer"></div>
+  <footer>
+    <div class="score-box">Score: <span id="scoreDisplay">0</span></div>
+  </footer>
+
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <h3 id="newHighScore" class="wave-text">New High Score!</h3>
+      <h2 id="finalScoreMsg">You scored 0!</h2>
+      <button class="try-again-btn" id="tryAgainBtn">Try Again</button>
+    </div>
+  </div>
+
+  <script>
+    const blocksContainer = document.getElementById('blocksContainer');
+    const highScoreDisplay = document.getElementById('highScoreDisplay');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const overlay = document.getElementById('overlay');
+    const finalScoreMsg = document.getElementById('finalScoreMsg');
+    const tryAgainBtn = document.getElementById('tryAgainBtn');
+    const resetHighScoreBtn = document.getElementById('resetHighScoreBtn');
+    const newHighScoreEl = document.getElementById('newHighScore');
+
+    let highScore = parseInt(localStorage.getItem('highScore') || '0', 10);
+    highScoreDisplay.textContent = highScore;
+
+    let level = 0;
+    scoreDisplay.textContent = level;
+
+    function resetHighScore() {
+      localStorage.setItem('highScore', '0');
+      highScore = 0;
+      highScoreDisplay.textContent = '0';
+    }
+    resetHighScoreBtn.addEventListener('click', resetHighScore);
+
+    // Random color helpers
+    function getRandomHSL() {
+      const h = Math.floor(Math.random() * 360);
+      const s = Math.floor(Math.random() * 50) + 50; 
+      const l = Math.floor(Math.random() * 40) + 30; 
+      return { h, s, l };
+    }
+    function hslToString({ h, s, l }) {
+      return `hsl(${h}, ${s}%, ${l}%)`;
+    }
+    function getSlightlyDifferentColor(baseHSL, currentLevel) {
+      const difference = Math.max(1, 15 - currentLevel);
+      let newLightness = baseHSL.l + (Math.random() < 0.5 ? difference : -difference);
+      newLightness = Math.max(0, Math.min(100, newLightness));
+      return { h: baseHSL.h, s: baseHSL.s, l: newLightness };
+    }
+
+    function generateBlocks() {
+      blocksContainer.innerHTML = '';
+      scoreDisplay.textContent = level;
+  
+      const baseColor = getRandomHSL();
+      const oddColor = getSlightlyDifferentColor(baseColor, level);
+      const oddIndex = Math.floor(Math.random() * 6);
+  
+      for (let i = 0; i < 6; i++) {
+        const block = document.createElement('div');
+        block.classList.add('block');
+        if (i === oddIndex) {
+          block.style.backgroundColor = hslToString(oddColor);
+          block.dataset.correct = 'true';
+        } else {
+          block.style.backgroundColor = hslToString(baseColor);
+        }
+        block.addEventListener('click', onBlockClick);
+        blocksContainer.appendChild(block);
+      }
+    }
+
+    function onBlockClick(e) {
+      const isCorrect = e.target.dataset.correct === 'true';
+      if (isCorrect) {
+        level++;
+        generateBlocks();
+      } else {
+        highlightCorrectBlock();
+        updateHighScore(level);
+        finalScoreMsg.textContent = `You scored ${level}!`;
+        overlay.style.display = 'flex';
+      }
+    }
+
+    function highlightCorrectBlock() {
+      const correctBlock = document.querySelector('[data-correct="true"]');
+      if (correctBlock) {
+        correctBlock.classList.add('correct-block-highlight');
+      }
+    }
+
+    function updateHighScore(score) {
+      // hide "New High Score!" by default
+      newHighScoreEl.style.display = 'none';
+
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('highScore', highScore);
+        highScoreDisplay.textContent = highScore;
+        newHighScoreEl.style.display = 'block';
+      }
+    }
+
+    tryAgainBtn.addEventListener('click', () => {
+      level = 0;
+      overlay.style.display = 'none';
+      generateBlocks();
+    });
+
+    generateBlocks();
+  </script>
 </body>
 </html>
